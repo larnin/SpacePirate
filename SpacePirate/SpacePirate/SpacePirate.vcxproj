@@ -125,13 +125,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Env.cpp" />
+    <ClCompile Include="Event\WindowEventsHolder.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="States\TestState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Env.h" />
+    <ClInclude Include="Event\Event.h" />
+    <ClInclude Include="Event\WindowEventArgs.h" />
+    <ClInclude Include="Event\WindowEventsHolder.h" />
     <ClInclude Include="States\TestState.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Event\Event.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

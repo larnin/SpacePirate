@@ -1,5 +1,6 @@
 #include "States/TestState.h"
 #include "Env.h"
+#include "Event/WindowEventsHolder.h"
 #include <NDK/Application.hpp>
 #include <Ndk/StateMachine.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
@@ -21,6 +22,8 @@ int main()
 	Env env;
 	env.application(application);
 	env.window(mainWindow);
+
+	WindowEventsHolder windowEventsHolder(mainWindow.GetEventHandler());
 
 	initializeComponentsAndSystems();
 
