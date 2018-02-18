@@ -33,8 +33,6 @@ void CameraScreenScaleComponent::updateScreenScale()
 	onResized(ResizedEvent{ Nz::WindowEvent::SizeEvent{ size.y, size.x } });
 }
 
-#include <iostream>
-
 void CameraScreenScaleComponent::onResized(const ResizedEvent & e)
 {
 	auto & cam = GetEntity()->GetComponent<Ndk::CameraComponent>();
@@ -43,6 +41,4 @@ void CameraScreenScaleComponent::onResized(const ResizedEvent & e)
 
 	cam.SetSize(Nz::Vector2f(size.x, size.y) / m_scale);
 	node.SetPosition(Nz::Vector2f(-(size.x / 2.0f), -(size.y / 2.0f)) / m_scale, Nz::CoordSys_Local);
-	std::cout << node.GetPosition(Nz::CoordSys_Local).x << " " << node.GetPosition(Nz::CoordSys_Local).y << " " << node.GetPosition(Nz::CoordSys_Local).z << std::endl;
-	std::cout << node.GetPosition(Nz::CoordSys_Global).x << " " << node.GetPosition(Nz::CoordSys_Global).y << " " << node.GetPosition(Nz::CoordSys_Global).z << std::endl << std::endl;
 }
