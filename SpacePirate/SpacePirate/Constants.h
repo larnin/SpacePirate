@@ -1,3 +1,6 @@
 #pragma once
 
-constexpr unsigned int pixelsByUnit = 16;
+namespace Constants
+{
+	constexpr unsigned int pixelsByUnit = 32;
+}

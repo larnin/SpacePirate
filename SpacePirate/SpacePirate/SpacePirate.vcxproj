@@ -84,7 +84,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libs\Nazara\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libs\Nazara\include;$(SolutionDir)SpacePirate;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libs\Nazara\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libs\Nazara\include;$(SolutionDir)SpacePirate;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -124,18 +124,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Components\CameraScreenScaleComponent.cpp" />
+    <ClCompile Include="Components\PlayerCommandsComponent.cpp" />
+    <ClCompile Include="Components\PlayerControlerComponent.cpp" />
     <ClCompile Include="Env.cpp" />
     <ClCompile Include="Event\WindowEventsHolder.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="States\TestState.cpp" />
+    <ClCompile Include="Systems\PlayerControlerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\CameraScreenScaleComponent.h" />
+    <ClInclude Include="Components\PlayerCommandsComponent.h" />
+    <ClInclude Include="Components\PlayerControlerComponent.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Env.h" />
     <ClInclude Include="Event\Event.h" />
     <ClInclude Include="Event\WindowEventArgs.h" />
     <ClInclude Include="Event\WindowEventsHolder.h" />
     <ClInclude Include="States\TestState.h" />
+    <ClInclude Include="Systems\PlayerControlerSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Event\Event.inl" />

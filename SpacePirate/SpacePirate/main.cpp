@@ -1,6 +1,10 @@
 #include "States/TestState.h"
 #include "Env.h"
 #include "Event/WindowEventsHolder.h"
+#include "Components/CameraScreenScaleComponent.h"
+#include "Components/PlayerCommandsComponent.h"
+#include "Components/PlayerControlerComponent.h"
+#include "Systems/PlayerControlerSystem.h"
 #include <NDK/Application.hpp>
 #include <Ndk/StateMachine.hpp>
 #include <Nazara/Renderer/RenderWindow.hpp>
@@ -9,7 +13,11 @@
 
 void initializeComponentsAndSystems()
 {
+	Ndk::InitializeComponent<CameraScreenScaleComponent>("001CSS");
+	Ndk::InitializeComponent<PlayerCommandsComponent>("002PCC");
+	Ndk::InitializeComponent<PlayerControlerComponent>("003PCC");
 
+	Ndk::InitializeSystem<PlayerControlerSystem>();
 }
 
 int main()

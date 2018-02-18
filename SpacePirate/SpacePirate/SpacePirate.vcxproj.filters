@@ -25,6 +25,18 @@
     <Filter Include="Fichiers sources\Event">
       <UniqueIdentifier>{56751e80-edc3-4900-9560-8dc5aaa6f4bb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Components">
+      <UniqueIdentifier>{5caddd61-1ffa-400e-8f14-f3d74616ce8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Components">
+      <UniqueIdentifier>{dcbc143e-9b11-4f9c-b9bc-12b58439fd86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Systems">
+      <UniqueIdentifier>{d7b05b10-a290-44f1-bedd-44bc040da9b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Systems">
+      <UniqueIdentifier>{f0f20e87-f7d3-4b9a-846a-101941261928}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -38,6 +50,18 @@
     </ClCompile>
     <ClCompile Include="Event\WindowEventsHolder.cpp">
       <Filter>Fichiers sources\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\CameraScreenScaleComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\PlayerCommandsComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\PlayerControlerComponent.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems\PlayerControlerSystem.cpp">
+      <Filter>Fichiers d%27en-tête\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +82,18 @@
     </ClInclude>
     <ClInclude Include="Event\WindowEventsHolder.h">
       <Filter>Fichiers d%27en-tête\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\CameraScreenScaleComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\PlayerCommandsComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\PlayerControlerComponent.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Systems\PlayerControlerSystem.h">
+      <Filter>Fichiers d%27en-tête\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
