@@ -67,7 +67,21 @@ void PlayerControlerComponent::move(const Nz::Vector2f & dir, Ndk::PhysicsCompon
 	}
 
 	if (acceleration != 0)
-		speed.x += acceleration * elapsedTime;
+	{
+		float accelerationValue = acceleration * elapsedTime;
+		if (speed.x > 0)
+		{
+			if (speed.x > maxSpeed)
+				speed.x -= decelerationMultiplier * elapsedTime;
+			else  speed.x = std::min(maxSpeed, speed.x + accelerationValue);
+		}
+		else
+		{
+			if (-speed.x > maxSpeed)
+				speed.x += decelerationMultiplier * elapsedTime;
+			else  speed.x = std::max(-maxSpeed, speed.x + accelerationValue);
+		}
+	}
 	else
 	{
 		acceleration = decelerationMultiplier * (speed.x > 0 ? -1 : 1) * elapsedTime;
@@ -77,9 +91,9 @@ void PlayerControlerComponent::move(const Nz::Vector2f & dir, Ndk::PhysicsCompon
 	}
 
 	if (speed.x < -maxSpeed)
-		speed.x = -maxSpeed;
+		speed.x += decelerationMultiplier * elapsedTime;
 	if (speed.x > maxSpeed)
-		speed.x = maxSpeed;
+		speed.x -= decelerationMultiplier * elapsedTime;
 
 	physics.SetVelocity(speed);
 }
