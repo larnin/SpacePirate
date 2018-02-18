@@ -26,7 +26,8 @@ Ndk::EntityHandle createPlayer(Ndk::World & w, const Nz::Vector2f & pos);
 TestState::TestState()
 {
 	createCamera(m_world);
-	createStaticCube(m_world, Nz::Rectf(-2, 0, 10, 1), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(-10, 0, 18, 1), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(-8, -1, 1, 1), Nz::Color::White);
 	createStaticCube(m_world, Nz::Rectf(2, -3, 5, 1), Nz::Color::White);
 
 	createPlayer(m_world, Nz::Vector2f(0, -2));

@@ -6,6 +6,12 @@
 
 class PlayerControlerComponent : public Ndk::Component<PlayerControlerComponent>
 {
+	enum class Facing
+	{
+		Left,
+		Right,
+	};
+
 public:
 	PlayerControlerComponent();
 
@@ -17,8 +23,16 @@ private:
 	void move(const Nz::Vector2f & dir, Ndk::PhysicsComponent2D & physics, float elapsedTime);
 	void jump(bool startJumping, bool jumping, Ndk::PhysicsComponent2D & physics, float elapsedTime);
 	void checkGrounded(const Nz::Vector2f & pos);
+	void startDash(Ndk::PhysicsComponent2D & physics);
+	void dashing(Ndk::PhysicsComponent2D & physics, float elapsedTime);
+	void updateDashStatus(float elapsedTime);
 
+	Facing m_facing;
 	float m_grounded;
 	float m_jumpingTime;
 	bool m_jumped;
+	bool m_dashing;
+	float m_dashTime;
+	bool m_canDash;
+	float m_delayAfterDash;
 };
