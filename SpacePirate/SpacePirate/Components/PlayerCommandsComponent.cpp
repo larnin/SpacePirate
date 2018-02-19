@@ -2,7 +2,7 @@
 #include "PlayerCommandsComponent.h"
 #include "Env.h"
 
-constexpr Nz::Keyboard::Key dashKey = Nz::Keyboard::Numpad0;
+constexpr Nz::Keyboard::Key dashKey = Nz::Keyboard::N;
 constexpr Nz::Keyboard::Key jumpKey = Nz::Keyboard::Space;
 
 Ndk::ComponentIndex PlayerCommandsComponent::componentIndex;

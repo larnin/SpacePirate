@@ -12,6 +12,13 @@ class PlayerControlerComponent : public Ndk::Component<PlayerControlerComponent>
 		Right,
 	};
 
+	enum class WallState
+	{
+		None,
+		Left,
+		Right,
+	};
+
 public:
 	PlayerControlerComponent();
 
@@ -28,8 +35,10 @@ private:
 	void updateDashStatus(float elapsedTime);
 
 	Facing m_facing;
+	WallState m_wallState;
 	float m_grounded;
 	float m_jumpingTime;
+	Nz::Vector2f m_jumpDirection;
 	bool m_jumped;
 	bool m_dashing;
 	float m_dashTime;

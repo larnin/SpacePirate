@@ -17,7 +17,7 @@
 #include "Constants.h"
 #include "TestState.h"
 
-constexpr float gravity = 7;
+constexpr float gravity = 30;
 
 Ndk::EntityHandle createCamera(Ndk::World & w);
 Ndk::EntityHandle createStaticCube(Ndk::World & w, const Nz::Rectf & rect, const Nz::Color & color);
@@ -26,15 +26,22 @@ Ndk::EntityHandle createPlayer(Ndk::World & w, const Nz::Vector2f & pos);
 TestState::TestState()
 {
 	createCamera(m_world);
-	createStaticCube(m_world, Nz::Rectf(-10, 0, 18, 1), Nz::Color::White);
-	createStaticCube(m_world, Nz::Rectf(-8, -1, 1, 1), Nz::Color::White);
-	createStaticCube(m_world, Nz::Rectf(2, -3, 5, 1), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(-10, 5, 20, 1), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(-10,-3,  1, 8), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf( -7,-3,  1, 6), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf( -1,-3,  1, 6), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(  2, 2,  3, 1), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(  6, 0,  1, 1), Nz::Color::White);
+	createStaticCube(m_world, Nz::Rectf(  2,-3,  1, 1), Nz::Color::White);
 
-	createPlayer(m_world, Nz::Vector2f(0, -2));
+	createPlayer(m_world, Nz::Vector2f(0, 2));
 
-	m_world.AddSystem<PlayerControlerSystem>();
+	m_world.AddSystem<PlayerControlerSystem>().SetMaximumUpdateRate(60);
 
 	m_world.GetSystem<Ndk::PhysicsSystem2D>().GetWorld().SetGravity(Nz::Vector2f(0, gravity));
+
+	m_world.GetSystem<Ndk::PhysicsSystem2D>().SetMaximumUpdateRate(60);
+
 }
 
 void TestState::Enter(Ndk::StateMachine & fsm)

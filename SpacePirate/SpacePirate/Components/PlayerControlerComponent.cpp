@@ -10,20 +10,22 @@ Ndk::ComponentIndex PlayerControlerComponent::componentIndex;
 
 constexpr float maxSpeed = 5;
 constexpr float maxFallSpeed = 10;
-constexpr float accelerationMultiplier = 20;
-constexpr float airAccelerationMultiplier = 10;
-constexpr float decelerationMultiplier = 10;
+constexpr float accelerationMultiplier = 100;
+constexpr float airAccelerationMultiplier = 80;
+constexpr float decelerationMultiplier = 50;
 constexpr float deadZoneCommands = 0.2f;
-constexpr float jumpPower = 5;
+constexpr float jumpPower = 8;
 constexpr float jumpMaxDelay = 0.1f;
-constexpr float jumpMaxTime = 0.5f;
-constexpr float groundCheckWidth = 0.5f;
-constexpr float delayBetweenDash = 0.5f;
-constexpr float dashSpeed = 10;
-constexpr float dashDuration = 0.6f;
+constexpr float jumpMaxTime = 0.3f;
+constexpr float groundCheckWidth = 0.4f;
+constexpr float delayBetweenDash = 0.2f;
+constexpr float dashSpeed = 15;
+constexpr float dashDuration = 0.3f;
+constexpr float wallFallSpeed = 0.2f;
 
 PlayerControlerComponent::PlayerControlerComponent()
 	: m_facing(Facing::Left)
+	, m_wallState(WallState::None)
 	, m_grounded(true)
 	, m_jumpingTime(0)
 	, m_jumped(false)
@@ -55,7 +57,7 @@ void PlayerControlerComponent::update(const PlayerCommands & commands, float ela
 void PlayerControlerComponent::move(const Nz::Vector2f & dir, Ndk::PhysicsComponent2D & physics, float elapsedTime)
 {
 	auto speed = physics.GetVelocity();
-	speed.y = std::min(speed.y, maxFallSpeed);
+	speed.y = std::min(speed.y, m_wallState == WallState::None ? maxFallSpeed : wallFallSpeed);
 
 	float acceleration = m_grounded ? accelerationMultiplier : airAccelerationMultiplier;
 	if (std::abs(dir.x) < deadZoneCommands)
@@ -65,6 +67,9 @@ void PlayerControlerComponent::move(const Nz::Vector2f & dir, Ndk::PhysicsCompon
 		m_facing = dir.x > 0 ? Facing::Right : Facing::Left;
 		acceleration *= dir.x;
 	}
+
+	if (m_wallState != WallState::None)
+		m_facing = m_wallState == WallState::Right ? Facing::Left : Facing::Right;
 
 	if (acceleration != 0)
 	{
@@ -111,12 +116,29 @@ void PlayerControlerComponent::jump(bool startJumping, bool jumping, Ndk::Physic
 	{
 		m_jumpingTime = 0;
 		if (m_grounded)
+		{
 			m_jumped = true;
+			m_jumpDirection = Nz::Vector2f(0, -1);
+		}
+		else if (m_wallState != WallState::None)
+		{
+			m_jumped = true;
+			m_jumpDirection = Nz::Vector2f(m_wallState == WallState::Left ? 0.707f : -0.707f, -0.707f); //45° diagonal
+		}
 		else m_jumped = false;
 	}
-	if (!m_jumped && jumping && m_grounded && m_jumpingTime < jumpMaxDelay)
+	if (!m_jumped && jumping && (m_grounded || m_wallState != WallState::None) && m_jumpingTime < jumpMaxDelay)
 	{
-		m_jumped = true;
+		if (m_grounded)
+		{
+			m_jumped = true;
+			m_jumpDirection = Nz::Vector2f(0, -1);
+		}
+		else if (m_wallState != WallState::None)
+		{
+			m_jumped = true;
+			m_jumpDirection = Nz::Vector2f(m_wallState == WallState::Left ? 0.707f : -0.707f, -0.707f); //45° diagonal
+		}
 		m_jumpingTime = 0;
 	}
 
@@ -125,7 +147,13 @@ void PlayerControlerComponent::jump(bool startJumping, bool jumping, Ndk::Physic
 		auto speed = physics.GetVelocity();
 		if (speed.y > 0.01f)
 			m_jumpingTime = jumpMaxTime;
-		speed.y = -jumpPower;
+		speed.y = jumpPower * m_jumpDirection.y;
+
+		if (speed.x < m_jumpDirection.x * jumpPower && m_jumpDirection.x > 0)
+			speed.x += m_jumpDirection.x * jumpPower;
+		if (speed.x > m_jumpDirection.x * jumpPower && m_jumpDirection.x < 0)
+			speed.x += m_jumpDirection.x * jumpPower;
+
 		physics.SetVelocity(speed);
 	}
 }
@@ -133,6 +161,7 @@ void PlayerControlerComponent::jump(bool startJumping, bool jumping, Ndk::Physic
 void PlayerControlerComponent::checkGrounded(const Nz::Vector2f & pos)
 {
 	const float rayDistance = 0.6f;
+	const float wallRayDistance = 0.55f;
 	
 	std::vector<Nz::PhysWorld2D::RaycastHit> hits;
 
@@ -145,6 +174,16 @@ void PlayerControlerComponent::checkGrounded(const Nz::Vector2f & pos)
 	if (!m_grounded)
 		m_grounded = world.RaycastQueryFirst(pos + Nz::Vector2f(-groundCheckWidth, 0), pos + Nz::Vector2f(-groundCheckWidth, rayDistance), 0, CollisionGroup::Player
 			, static_cast<Nz::UInt32>(CategoryMaskFlags(CategoryMask::Ground)), std::numeric_limits<unsigned int>::max());
+
+	bool left = world.RaycastQueryFirst(pos, pos + Nz::Vector2f(-wallRayDistance, 0), 0, CollisionGroup::Player
+		, static_cast<Nz::UInt32>(CategoryMaskFlags(CategoryMask::Ground)), std::numeric_limits<unsigned int>::max());
+	bool right = world.RaycastQueryFirst(pos, pos + Nz::Vector2f(wallRayDistance, 0), 0, CollisionGroup::Player
+		, static_cast<Nz::UInt32>(CategoryMaskFlags(CategoryMask::Ground)), std::numeric_limits<unsigned int>::max());
+	if (left)
+		m_wallState = WallState::Left;
+	else if (right)
+		m_wallState = WallState::Right;
+	else m_wallState = WallState::None;
 }
 
 void PlayerControlerComponent::startDash(Ndk::PhysicsComponent2D & physics)
@@ -182,6 +221,6 @@ void PlayerControlerComponent::updateDashStatus(float elapsedTime)
 	if (m_dashing)
 		m_delayAfterDash = 0;
 	else m_delayAfterDash += elapsedTime;
-	if (m_grounded && m_delayAfterDash > delayBetweenDash)
+	if ((m_grounded || m_wallState != WallState::None) && m_delayAfterDash > delayBetweenDash)
 		m_canDash = true;
 }

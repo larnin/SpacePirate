@@ -25,7 +25,8 @@ int main()
 	Ndk::Application application;
 
 	Nz::RenderWindow& mainWindow = application.AddWindow<Nz::RenderWindow>();
-	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Test");
+	mainWindow.Create(Nz::VideoMode(800, 600, 32), "Space pirates");
+	mainWindow.SetFramerateLimit(60);
 
 	Env env;
 	env.application(application);
