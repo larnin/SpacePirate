@@ -14,8 +14,8 @@ void PlayerControlerSystem::OnUpdate(float elapsedTime)
 {
 	for (const Ndk::EntityHandle& entity : GetEntities())
 	{
-		auto controles = entity->GetComponent<PlayerCommandsComponent>().evaluateControles();
+		/*auto controles = entity->GetComponent<PlayerCommandsComponent>().evaluateControles();
 		auto & controler = entity->GetComponent<PlayerControlerComponent>();
-		controler.update(controles, elapsedTime);
+		controler.update(controles, elapsedTime);*/
 	}
 }

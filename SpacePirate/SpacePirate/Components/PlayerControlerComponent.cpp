@@ -1,10 +1,13 @@
 
 #include "PlayerControlerComponent.h"
+#include "PlayerCommandsComponent.h"
 #include "Constants.h"
 #include <NDK/World.hpp>
 #include <NDK/Systems/PhysicsSystem2D.hpp>
 #include <algorithm>
 #include <limits>
+
+#include <iostream>
 
 Ndk::ComponentIndex PlayerControlerComponent::componentIndex;
 
@@ -21,30 +24,41 @@ constexpr float groundCheckWidth = 0.4f;
 constexpr float delayBetweenDash = 0.2f;
 constexpr float dashSpeed = 15;
 constexpr float dashDuration = 0.3f;
-constexpr float wallFallSpeed = 0.2f;
+constexpr float wallFallSpeed = 0.5f;
+constexpr float wallFallDelay = 0.5f;
 
 PlayerControlerComponent::PlayerControlerComponent()
 	: m_facing(Facing::Left)
 	, m_wallState(WallState::None)
 	, m_grounded(true)
 	, m_jumpingTime(0)
+	, m_lastFrameZero(false)
 	, m_jumped(false)
 	, m_dashing(false)
 	, m_dashTime(0)
 	, m_canDash(true)
 	, m_delayAfterDash(0)
+	, m_wallRideTime(0)
 {
 
 }
 
-void PlayerControlerComponent::update(const PlayerCommands & commands, float elapsedTime)
+void PlayerControlerComponent::initialize()
 {
-	auto & physics = GetEntity()->GetComponent<Ndk::PhysicsComponent2D>();
+	GetEntity()->GetComponent<Ndk::PhysicsComponent2D>().SetVelocityFunction([this](const Nz::Vector2f& gravity, float damping, float elapsedTime) {updateVelocityFunction(gravity, damping, elapsedTime); });
+}
 
+void PlayerControlerComponent::update(const PlayerCommands & commands, Ndk::PhysicsComponent2D & physics, float elapsedTime)
+{
 	physics.SetRotation(0);
 	physics.SetAngularVelocity(0);
 
 	checkGrounded(physics.GetPosition());
+	if (m_wallState == WallState::None)
+		m_wallRideTime = 0;
+	else if(physics.GetVelocity().y > 0)
+		m_wallRideTime+= elapsedTime;
+
 	updateDashStatus(elapsedTime);
 	if (commands.dashing)
 		startDash(physics);
@@ -57,7 +71,7 @@ void PlayerControlerComponent::update(const PlayerCommands & commands, float ela
 void PlayerControlerComponent::move(const Nz::Vector2f & dir, Ndk::PhysicsComponent2D & physics, float elapsedTime)
 {
 	auto speed = physics.GetVelocity();
-	speed.y = std::min(speed.y, m_wallState == WallState::None ? maxFallSpeed : wallFallSpeed);
+	speed.y = std::min(speed.y, (m_wallState == WallState::None || m_wallRideTime > wallFallDelay) ? maxFallSpeed : wallFallSpeed);
 
 	float acceleration = m_grounded ? accelerationMultiplier : airAccelerationMultiplier;
 	if (std::abs(dir.x) < deadZoneCommands)
@@ -115,38 +129,20 @@ void PlayerControlerComponent::jump(bool startJumping, bool jumping, Ndk::Physic
 	if (startJumping)
 	{
 		m_jumpingTime = 0;
-		if (m_grounded)
-		{
-			m_jumped = true;
-			m_jumpDirection = Nz::Vector2f(0, -1);
-		}
-		else if (m_wallState != WallState::None)
-		{
-			m_jumped = true;
-			m_jumpDirection = Nz::Vector2f(m_wallState == WallState::Left ? 0.707f : -0.707f, -0.707f); //45° diagonal
-		}
-		else m_jumped = false;
+		startJump();
 	}
-	if (!m_jumped && jumping && (m_grounded || m_wallState != WallState::None) && m_jumpingTime < jumpMaxDelay)
-	{
-		if (m_grounded)
-		{
-			m_jumped = true;
-			m_jumpDirection = Nz::Vector2f(0, -1);
-		}
-		else if (m_wallState != WallState::None)
-		{
-			m_jumped = true;
-			m_jumpDirection = Nz::Vector2f(m_wallState == WallState::Left ? 0.707f : -0.707f, -0.707f); //45° diagonal
-		}
-		m_jumpingTime = 0;
-	}
+	else if (!m_jumped && jumping && m_jumpingTime < jumpMaxDelay)
+		startJump();
 
 	if (m_jumpingTime < jumpMaxTime && jumping && m_jumped)
 	{
 		auto speed = physics.GetVelocity();
 		if (speed.y > 0.01f)
-			m_jumpingTime = jumpMaxTime;
+		{
+			if(m_lastFrameZero)
+				m_jumpingTime = jumpMaxTime;
+			else m_lastFrameZero = true;
+		}
 		speed.y = jumpPower * m_jumpDirection.y;
 
 		if (speed.x < m_jumpDirection.x * jumpPower && m_jumpDirection.x > 0)
@@ -156,6 +152,24 @@ void PlayerControlerComponent::jump(bool startJumping, bool jumping, Ndk::Physic
 
 		physics.SetVelocity(speed);
 	}
+}
+
+void PlayerControlerComponent::startJump()
+{
+	m_lastFrameZero = false;
+	if (m_grounded)
+	{
+		m_jumpingTime = 0;
+		m_jumped = true;
+		m_jumpDirection = Nz::Vector2f(0, -1);
+	}
+	else if (m_wallState != WallState::None)
+	{
+		m_jumpingTime = 0;
+		m_jumped = true;
+		m_jumpDirection = Nz::Vector2f(m_wallState == WallState::Left ? 0.707f : -0.707f, -0.707f); //45° diagonal
+	}
+	else m_jumped = false;
 }
 
 void PlayerControlerComponent::checkGrounded(const Nz::Vector2f & pos)
@@ -223,4 +237,11 @@ void PlayerControlerComponent::updateDashStatus(float elapsedTime)
 	else m_delayAfterDash += elapsedTime;
 	if ((m_grounded || m_wallState != WallState::None) && m_delayAfterDash > delayBetweenDash)
 		m_canDash = true;
+}
+
+void PlayerControlerComponent::updateVelocityFunction(const Nz::Vector2f & gravity, float damping, float elapsedTime)
+{
+	auto & physics = GetEntity()->GetComponent<Ndk::PhysicsComponent2D>();
+	physics.SetVelocity(physics.GetVelocity() + gravity * elapsedTime);
+	update(GetEntity()->GetComponent<PlayerCommandsComponent>().evaluateControles(), physics, elapsedTime);
 }

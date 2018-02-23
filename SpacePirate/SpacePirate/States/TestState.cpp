@@ -129,7 +129,8 @@ Ndk::EntityHandle createPlayer(Ndk::World & w, const Nz::Vector2f & pos)
 	render.Attach(sprite);
 
 	e->AddComponent<PlayerCommandsComponent>();
-	e->AddComponent<PlayerControlerComponent>();
+	auto & controler = e->AddComponent<PlayerControlerComponent>();
+	controler.initialize();
 
 	return e;
 }
